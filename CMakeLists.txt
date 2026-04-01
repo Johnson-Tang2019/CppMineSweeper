@@ -21,6 +21,7 @@ qt_add_qml_module(appSimpleMineSweeper
     QML_FILES
         Main.qml
         MainGame.qml
+        Gameover.qml
         
 )
 

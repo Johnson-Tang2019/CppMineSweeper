@@ -1,3 +1,6 @@
+#ifndef MINESWEEPER_H
+#define MINESWEEPER_H
+
 #include <vector>
 #include <time.h>
 #include <iostream>
@@ -29,7 +32,7 @@ public:
     }   
     
     int getMineData(int x, int y){
-        if((x < 0 || x > mine[0].size()) || (y < 0 || y > mine[0].size()))
+        if((x < 0 || x >= mine[0].size()) || (y < 0 || y >= mine[0].size()))
             return 0;
         else
             return mine[x][y];
@@ -53,12 +56,17 @@ public:
     MineSweeper(int x, int y, int n = SIMPLE_SIZE, float mine_rate = SIMPLE_MINE_RATE): minedata(x, y, n, mine_rate) {}
 
     int countAdjacentMines(int x, int y){
+        if(minedata.getMineData(x, y) == 1){
+            return -1; // 如果是雷，返回 -1
+        }
         int count = 0;
         for (int i = -1; i < 2; i++){
             for (int j = -1; j < 2; j++){
-                count += minedata.getMineData(x + i, j + y);
+                count += minedata.getMineData(x + i, y + j);
             }
         }
         return count;
     }
 };
+
+#endif

@@ -9,11 +9,6 @@ ApplicationWindow {
     title: qsTr("MineSweeper")
     color: '#e60db7'
 
-    Loader {
-        id: pageLoader
-        anchors.fill: parent
-    }
-
     Rectangle {
         width: 320
         height: 100
@@ -60,5 +55,10 @@ ApplicationWindow {
         }   
     }
 
+    Loader {
+        id: pageLoader
+        objectName: "pageLoader"
+        anchors.fill: parent
+    }
     
 }

@@ -12,10 +12,14 @@ class MyClickObject : public QObject{
 public:
     explicit MyClickObject(QObject* parent = nullptr) : QObject(parent) {}
     Q_INVOKABLE void changeRate();
-    Q_INVOKABLE void startGame();
-    Q_INVOKABLE void backToMain();
+    Q_INVOKABLE int getSize();
     void setRoot(QObject* _root);
     float getRate();
+    Q_INVOKABLE void clickBox(int index);
+    Q_INVOKABLE void gameOver();
+
+signals:
+    void updateBox(int index, int number);
 };
 
 #endif
