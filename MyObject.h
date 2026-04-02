@@ -17,9 +17,13 @@ public:
     float getRate();
     Q_INVOKABLE void clickBox(int index);
     Q_INVOKABLE void gameOver();
+    Q_INVOKABLE void resetGame();
+    Q_INVOKABLE int getBoxCount();
+    Q_INVOKABLE int getMineCount();
 
-signals:
+signals : 
     void updateBox(int index, int number);
+    void winGame();
 };
 
 #endif

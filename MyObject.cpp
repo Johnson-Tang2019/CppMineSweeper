@@ -2,6 +2,7 @@
 #include <QGuiApplication>
 #include "minesweeper.h"
 
+
 using namespace std;
 
 double rate[3] = {SIMPLE_MINE_RATE, MIDDLE_MINE_RATE, HARD_MINE_RATE};
@@ -10,6 +11,7 @@ string rateText[3] = {"simple", "middle", "hard"};
 int rateIndex = 0;
 bool startFlag = false;
 std::vector<bool> visited;
+int unopenedBox = 0;
 
 MineSweeper* mineSweeper;
 
@@ -35,17 +37,32 @@ void MyClickObject::setRoot(QObject* _root) {
 double getRate() { return rate[rateIndex]; }
 
 void MyClickObject::gameOver() {
+    resetGame();
+    emit updateBox(-1, -1);  // 发送特殊信号通知 QML 游戏结束
+}
+
+void MyClickObject::resetGame() {
+    unopenedBox = 0;
     startFlag = false;
     visited.clear();
     delete mineSweeper;
     mineSweeper = nullptr;
-    emit updateBox(-1, -1);  // 发送特殊信号通知 QML 游戏结束
+    
+}
+
+int MyClickObject::getBoxCount() {
+    return unopenedBox - mineSweeper->getMineCount();
+}   
+
+int MyClickObject::getMineCount() {
+    return mineSweeper->getMineCount();
 }
 
 void MyClickObject::clickBox(int index) {
     if(index < 0 || index >= sizeNumber[rateIndex] * sizeNumber[rateIndex])
         return;
     if(!startFlag){
+        unopenedBox = sizeNumber[rateIndex] * sizeNumber[rateIndex];
         int x = index / sizeNumber[rateIndex];
         int y = index % sizeNumber[rateIndex];
         mineSweeper = new MineSweeper(x, y, sizeNumber[rateIndex], rate[rateIndex]);
@@ -59,11 +76,17 @@ void MyClickObject::clickBox(int index) {
         return;
     } else {
         if (count > 0) {
+            unopenedBox--;
             emit updateBox(index, count);
-            visited[index] = true;
+            if(index >= 0 && index < visited.size()) {
+                visited[index] = true;
+            }
         }else {
+            unopenedBox--;
             emit updateBox(index, 0);
-            visited[index] = true;
+            if(index >= 0 && index < visited.size()) {
+                visited[index] = true;
+            }
             for (int i = -1; i < 2; i++){
                 for (int j = -1; j < 2; j++){
                     if(i == 0 && j == 0)
@@ -78,6 +101,9 @@ void MyClickObject::clickBox(int index) {
                             sizeNumber[rateIndex] + (index % sizeNumber[rateIndex] + j));
                 }
             }
+        }
+        if(unopenedBox == mineSweeper->getMineCount()){
+            winGame();
         }
     }
     

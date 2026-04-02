@@ -27,13 +27,16 @@ Rectangle {
         }
         MouseArea{
             anchors.fill: parent
-            onClicked: pageLoader.source = ""
+            onClicked:
+            {
+                myClickObject.resetGame()
+                pageLoader.source = ""
+            }
         }
     }
 
     property int gridSize: myClickObject.getSize()   
-    // 每个格子大小
-    property int cellSize: 600 / gridSize
+    property int cellSize: 600 / gridSize      // 每个格子大小
 
     Connections {
         target: myClickObject
@@ -41,9 +44,16 @@ Rectangle {
         function onUpdateBox(index, number) {
             gameRoot.updateBox(index, number)
         }
+        function onWinGame() {
+            gameRoot.winGame()
+        }
 
     }
 
+    function winGame() {
+        myClickObject.resetGame()
+        pageLoader.source = "WinGame.qml";
+    }
 
     function updateBox(index, number) {
         if(index == -1 && number == -1){
@@ -69,6 +79,15 @@ Rectangle {
                 }
             }
         }
+        boxCount.text = myClickObject.getBoxCount();
+        if(mineCount.text === "") {
+            mineCount.text = myClickObject.getMineCount();
+        }   
+    }
+
+    function markBox(index) {
+        var cell = mineRepeater.itemAt(index);
+        cell.color == "#ff2a6e" ? cell.color = "#e77887" : cell.color = "#ff2a6e";
     }
 
     // 整体网格容器
@@ -107,14 +126,62 @@ Rectangle {
                 // 格子点击效果
                 MouseArea {
                     anchors.fill: parent
+                    acceptedButtons: Qt.LeftButton | Qt.RightButton
                     onClicked: {
-                        myClickObject.clickBox(index)  // 调用 C++ 的 clickBox 方法
+                        if (mouse.button === Qt.LeftButton && parent.color == "#e77887") {
+                            myClickObject.clickBox(index)  // 调用 C++ 的 clickBox 方法
+                        } 
+                        if (mouse.button === Qt.RightButton) {
+                            markBox(index)  // 标记格子
+                        }
                     }
                 }
             }
         }
     }
 
-    
+    ColumnLayout{
+        id: infoPanel
+        x: 1200
+        y: 100
+        spacing: 30
+        ColumnLayout {
+            id: boxPanel
+            spacing: 50
+            Rectangle {
+                width: cellSize
+                height: cellSize
+                color: '#e77887'
+                radius: 3
+                border.color: "white"
+                border.width: 1
+            }
+            Text {
+                id: boxCount
+                objectName: "boxCount"
+                anchors.centerIn: parent
+                text: "" // 显示剩余
+                font.pixelSize: 50
+                color: '#ff00ff'
+            }
+        }
+        ColumnLayout {
+            spacing: 20
+            id: minePanel
+            Image {
+                source: "image/mine.png"
+                width: 100
+                height: 100
+            }
+            Text {
+                id: mineCount
+                objectName: "mineCount"
+                anchors.centerIn: parent
+                text: "" // 显示剩余地雷数
+                font.pixelSize: 50
+                color: '#ff00ff'
+            }
+        }
    
+    }
 }
